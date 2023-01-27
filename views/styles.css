@@ -28,8 +28,18 @@
    /* para que se adapte al tamaño del div*/
    height: 100%;
 }
-
-
+#image-container{
+   width: 100%;
+   /* para que se adapte al tamaño del div*/
+   height: 100%;
+   object-fit: cover;
+}
+.mapcolor{
+   object-position: cover;
+   width: 50%;
+   /* para que se adapte al tamaño del div*/
+   height: 50%;
+}
 
 @media print {
    body {
@@ -103,10 +113,7 @@ nav a:hover {
    /* verde oscuro */
 }
 
-#image-container {
-   width: 300px;
-   height: 200px;
-}
+
 
 b {
    font-size: 20px;
