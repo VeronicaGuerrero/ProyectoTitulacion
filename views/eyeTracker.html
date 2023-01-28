@@ -17,11 +17,8 @@
          const image = new Image();
          image.src = URL.createObjectURL(file);
          imageContainer.appendChild(image);
-        
          image.style.width = "500px";
          image.style.height = "700px";
-      
-
          const uploadButtons = document.getElementsByClassName("upload-button");
          const testButtons = document.getElementsByClassName("test-button");
          for (let i = 0; i < uploadButtons.length; i++) {
@@ -314,7 +311,7 @@
 <body>
 
    <!--SECCION CRONOMETRO-->
-   <h1 class="titulo" id="titulo">ANALISIS DE IMAGENES PUBLICITARIAS</h1>
+   <h1 class="titulo" id="titulo">ANÁLISIS DE IMAGENES PUBLICITARIAS</h1>
       <div class="cronometro" id="timer-display" style="display: none;">
          <p id="timer">0:0:0</p>
       </div>
