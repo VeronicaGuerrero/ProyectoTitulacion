@@ -33,7 +33,6 @@
 }
 
 .mapcolor{
-   align-items: center;
    object-position: cover;
    width: 50%;
    /* para que se adapte al tamaño del div*/
