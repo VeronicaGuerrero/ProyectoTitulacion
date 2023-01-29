@@ -40,6 +40,7 @@
          const userName = document.getElementById("user-name");
          const inputValue = userName.value;
          const slider = document.getElementById("slider");
+         const startBtn = document.getElementById('start-record-button');
          if (inputValue != "") {
             userName.disabled = true;
             slider.style.display = "none";
@@ -61,6 +62,7 @@
          var input = document.getElementById("video-input");
          var btn = document.getElementById("upload-video-button");
          var btnImg = document.getElementById("pruebaImagen");
+         var startBtn = document.getElementById('start-record-button');
          input.style.display = "none";
          input.onchange = function () {
             btnImg.enabled = false;
@@ -70,7 +72,6 @@
             document.getElementById("video-player").style.display = "block";
             video.style.width = "100%";
             video.style.height = "100%";
-            btn.style.display = "none";
          };
          input.click();
          const uploadButtons = document.getElementsByClassName("upload-button");
@@ -165,11 +166,10 @@
             if (optionVal == "video") {
                playPauseVideo();
                // Variables
-               const startBtn = document.getElementById('init-test-button');
+               const startBtn = document.getElementById('start-record-button');
                const stopBtn = document.getElementById('pruebaVideo');
                const recordedVideo = document.getElementById('recordedVideo');
                const downloadLink = document.getElementById('downloadLink');
-
                // Iniciar grabación
                startBtn.addEventListener('click', async () => {
                   
@@ -201,6 +201,7 @@
                      stream.getTracks().forEach(track => track.stop());
                   });
                });
+               startBtn.click();
             }
          }
          GazeCloudAPI.OnCamDenied = function () { console.log('No se puede obtener acceso a la cámara') }
@@ -383,8 +384,9 @@
                <input id="user-name">
                </input>
             </div>
-
          </nav>
+
+         <button class="upload-button" id="start-record-button" style="display:none;">Iniciar Grabación de Seguimiento Ocular</button>
 
          <div id="upload-video-form" style="display:none">
             <input type="file" id="video-input" accept="video/*" style="display:none">
