@@ -190,3 +190,10 @@ html body {
  .button.type4:hover::after {
    width: 50px;
  }
+ nav a {
+   text-decoration: none;
+ }
+ nav a:hover, nav a:active {
+   text-decoration: underline;
+ }
+ 
