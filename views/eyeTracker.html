@@ -7,6 +7,7 @@
    <script src="https://app.gazerecorder.com/GazePlayer.js"></script>
    <script src="https://api.gazerecorder.com/GazeCloudAPI.js?v=1.2"></script>
    <script src="https://api.gazerecorder.com/heatmapLive.js"></script>
+   <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 
    <script>
 
@@ -59,8 +60,10 @@
       function uploadVideo() {
          var input = document.getElementById("video-input");
          var btn = document.getElementById("upload-video-button");
-         input.style.display = "block";
+         var btnImg = document.getElementById("pruebaImagen");
+         input.style.display = "none";
          input.onchange = function () {
+            btnImg.enabled = false;
             var video = document.getElementById("video");
             video.src = URL.createObjectURL(input.files[0]);
             video.style.display = "block";
@@ -161,6 +164,43 @@
             ShowHeatMap(); resetTimer(); startTimer(); console.log('Calibracion Completa');
             if (optionVal == "video") {
                playPauseVideo();
+               // Variables
+               const startBtn = document.getElementById('init-test-button');
+               const stopBtn = document.getElementById('pruebaVideo');
+               const recordedVideo = document.getElementById('recordedVideo');
+               const downloadLink = document.getElementById('downloadLink');
+
+               // Iniciar grabación
+               startBtn.addEventListener('click', async () => {
+                  
+                  // Compartir pantalla
+                  const stream = await navigator.mediaDevices.getDisplayMedia();
+
+                  // Crear grabador
+                  const recorder = new RecordRTCPromisesHandler(stream, {
+                     type: 'video'
+                  });
+
+                  // Iniciar grabación
+                  await recorder.startRecording();
+
+                  // Detener grabación
+                  stopBtn.addEventListener('click', async () => {
+                     startBtn.disabled = false;
+                     stopBtn.disabled = true;
+
+                     // Detener grabación
+                     await recorder.stopRecording();
+
+                     // Mostrar video grabado
+                     recordedVideo.src = URL.createObjectURL(await recorder.getBlob());
+                     
+                     downloadLink.href = recordedVideo.src;
+                     downloadLink.download = 'grabacion.mp4';
+                     downloadLink.click();
+                     stream.getTracks().forEach(track => track.stop());
+                  });
+               });
             }
          }
          GazeCloudAPI.OnCamDenied = function () { console.log('No se puede obtener acceso a la cámara') }
@@ -306,6 +346,7 @@
          location.reload();
       }
    </script>
+
 </head>
 
 <body>
@@ -351,6 +392,8 @@
             <div id="video-player" style="display: none;">
                <video id="video" controls></video>
             </div>
+            <a id="downloadLink" style="display: none;"></a>
+            <video id="recordedVideo" controls style="display: none; width: 200px; height: 200px;"></video>
          </div>
          
         
@@ -398,14 +441,14 @@
          </div>
          <div class="test-button" id="test-button" style="display: none;">
 
-            <button  class="button type4" type="button" onclick="setButtonsON();GazeCloudAPI.StartEyeTracking();">Iniciar
+            <button id="init-test-button" class="button type4" type="button" onclick="setButtonsON();GazeCloudAPI.StartEyeTracking();">Iniciar
                Prueba</button>
 
             <button  class="button type4" type="button" id="pruebaImagen" onclick="GazeCloudAPI.StopEyeTracking();stopTimer();printPDF();"
                disabled>Detener Prueba de Imagen</button>
                
             <button class="button type4" type="button" id="pruebaVideo"
-               onclick="GazeCloudAPI.StopEyeTracking();stopTimer();pauseVideo();printPDF();" disabled>Detener Prueba de
+               onclick="GazeCloudAPI.StopEyeTracking();stopTimer();pauseVideo();" disabled>Detener Prueba de
                Video</button>
          </div>
       </div>
