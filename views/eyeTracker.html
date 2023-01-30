@@ -15,6 +15,10 @@
       function handleFileSelect(event) {
          const file = event.target.files[0];
          const imageContainer = document.getElementById("image-container");
+         if (!file.type.match("image/*")) {
+            alert("Solo se permiten archivos de imagen, por favor ingrese un archivo del tipo correcto.");
+            return;
+         }
          const image = new Image();
          image.src = URL.createObjectURL(file);
          imageContainer.appendChild(image);
@@ -38,23 +42,28 @@
          const imageForm = document.getElementById("upload-image-form");
          const videoForm = document.getElementById("upload-video-form");
          const userName = document.getElementById("user-name");
+         const termsCB = document.getElementById("terms-checkbox");
          const inputValue = userName.value;
          const slider = document.getElementById("slider");
          const startBtn = document.getElementById('start-record-button');
-         if (inputValue != "") {
-            userName.disabled = true;
-            slider.style.display = "none";
-            if (option === "image") {
-               imageForm.style.display = "block";
-               videoForm.style.display = "none";
-               optionVal = "image";
+         if (!termsCB.checked){
+            alert("Para continuar debe ACEPTAR los Términos y Condiciones del Servicio");
+         } else{
+            if (inputValue != "") {
+               userName.disabled = true;
+               slider.style.display = "none";
+               if (option === "image") {
+                  imageForm.style.display = "block";
+                  videoForm.style.display = "none";
+                  optionVal = "image";
+               } else {
+                  imageForm.style.display = "none";
+                  videoForm.style.display = "block";
+                  optionVal = "video";
+               }
             } else {
-               imageForm.style.display = "none";
-               videoForm.style.display = "block";
-               optionVal = "video";
+               alert("Ingrese su nombre antes de realizar alguna prueba");
             }
-         } else {
-            alert("Ingrese su nombre antes de realizar alguna prueba");
          }
       }
       //script para ingresar un video
@@ -64,14 +73,21 @@
          var btnImg = document.getElementById("pruebaImagen");
          var startBtn = document.getElementById('start-record-button');
          input.style.display = "none";
-         input.onchange = function () {
-            btnImg.enabled = false;
-            var video = document.getElementById("video");
-            video.src = URL.createObjectURL(input.files[0]);
-            video.style.display = "block";
-            document.getElementById("video-player").style.display = "block";
-            video.style.width = "100%";
-            video.style.height = "100%";
+         input.onchange = function (event) {
+            const file = event.target.files[0];
+            if (!file.type.match("video/*")) {
+               alert("Solo se permiten archivos de video, por favor ingrese un archivo del tipo correcto.");
+               location.reload();
+            }else{
+               btnImg.enabled = false;
+               var video = document.getElementById("video");
+               video.src = URL.createObjectURL(input.files[0]);
+               video.style.display = "block";
+               document.getElementById("video-player").style.display = "block";
+               video.style.width = "100%";
+               video.style.height = "100%";
+            }
+            
          };
          input.click();
          const uploadButtons = document.getElementsByClassName("upload-button");
@@ -383,8 +399,8 @@
                <label for="">Ingrese su nombre</label>
                <input id="user-name">
                </input>
-               <input type="checkbox" name="" id="">
-               <a href="terminos.html">terminos y condiciones</a>
+               <input type="checkbox" name="" id="terms-checkbox">
+               <a href="terminos.html">Aceptar Términos y Condiciones</a>
             </input>
                
             </div>
@@ -405,7 +421,7 @@
         
 
          <form id="upload-image-form" style="display:none">
-            <input type="file" class="upload-button" onchange="handleFileSelect(event)">
+            <input type="file" class="upload-button" accept="image/*" onchange="handleFileSelect(event)">
          </form>
 
       
