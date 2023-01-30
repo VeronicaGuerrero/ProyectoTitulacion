@@ -43,6 +43,7 @@
          const videoForm = document.getElementById("upload-video-form");
          const userName = document.getElementById("user-name");
          const termsCB = document.getElementById("terms-checkbox");
+         const termsT = document.getElementById("terms");
          const inputValue = userName.value;
          const slider = document.getElementById("slider");
          const startBtn = document.getElementById('start-record-button');
@@ -50,6 +51,10 @@
             alert("Para continuar debe ACEPTAR los Términos y Condiciones del Servicio");
          } else{
             if (inputValue != "") {
+            
+
+               termsT.style.display = "none";
+               termsCB.style.display = "none";
                userName.disabled = true;
                slider.style.display = "none";
                if (option === "image") {
@@ -362,6 +367,7 @@
          window.print();
          location.reload();
       }
+     
    </script>
 
 </head>
@@ -450,8 +456,14 @@
                </li>
             </ul>
          </div>
-         <input type="checkbox" name="" id="terms-checkbox">
-         <a href="terminos.html">Aceptar Términos y Condiciones</a>
+         <div >
+           
+            <input   type="checkbox" name="" id="terms-checkbox" >
+            <a href="terminos.html" id="terms">Aceptar Términos y Condiciones</a>
+
+         </div>
+         
+         
        
        
          <div  id="image-container">
