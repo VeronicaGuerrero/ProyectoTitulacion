@@ -8,9 +8,9 @@
    <script src="https://api.gazerecorder.com/GazeCloudAPI.js?v=1.2"></script>
    <script src="https://api.gazerecorder.com/heatmapLive.js"></script>
    <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
 
    <script>
-
       //API
       function handleFileSelect(event) {
          const file = event.target.files[0];
@@ -153,14 +153,23 @@
          gaze = document.getElementById("gaze");
       }
 
+      let calibrationComplete = false;
+      let dataCalib = [];
+
       //Funciones de prueba de calibración   
       function PlotGaze(GazeData) {
          //settea los valores de tracking en tiempo real
-         document.getElementById("GazeData").innerHTML = " DirMiradaX: " + GazeData.GazeX + " DirMiradaY: " + GazeData.GazeY;
+         document.getElementById("GazeData").innerHTML = " X: " + GazeData.GazeX + " Y: " + GazeData.GazeY;
          document.getElementById("HeadPhoseData").innerHTML = " Rot/Pos CabezaX: " + GazeData.HeadX + " Rot/Pos CabezaY: " + GazeData.HeadY + " Posición CabezaZ: " + GazeData.HeadZ;
          document.getElementById("HeadRotData").innerHTML = " Yaw: " + GazeData.HeadYaw + " Pitch: " + GazeData.HeadPitch + " Roll: " + GazeData.HeadRoll;
-
+         if (calibrationComplete){
+            var point = {x: GazeData.GazeX, y: GazeData.GazeY};
+            dataCalib.push(point);
+            console.log(point);
+         }
+         
          setVars(GazeData);
+         
 
          //Anchura interior del elemento
          x -= gaze.clientWidth / 2;
@@ -181,9 +190,86 @@
          }
       }
 
+      let top3;
+
+      function setCalibIncomplete() {
+         calibrationComplete = false;
+      }
+
+      function tabulateRecords() {
+         var counts = {};
+         for (var i = 0; i < dataCalib.length; i++) {
+            var point = dataCalib[i];
+            var key = point.x + ',' + point.y;
+
+            if (counts[key]) {
+               counts[key]++;
+            } else {
+               counts[key] = 1;
+            }
+         }
+         var entries = Object.entries(counts);
+         entries.sort(function(a, b) {
+            return b[1] - a[1];
+         });
+
+         top3 = entries.slice(0, 3);
+         //alert(top3);
+      }
+      function drawMap(){
+         // Crear un objeto que contenga los datos agrupados por coordenadas
+         let data = {};
+         dataCalib.forEach(coordinate => {
+            let key = `${coordinate.x},${coordinate.y}`;
+            if (!data[key]) {
+               data[key] = {x: coordinate.x, y: coordinate.y, count: 0};
+            }
+            data[key].count++;
+         });
+      
+         // Convertir el objeto en un formato compatible con Chart.js
+         data = Object.values(data);
+         const chartData = {
+            labels: data.map(point => `(${point.x}, ${point.y})`),
+            datasets: [{
+               data: data.map(point => point.count),
+               backgroundColor: [
+               "#FF6384",
+               "#36A2EB",
+               "#FFCE56",
+               "#4BC0C0",
+               "#E7E9ED"
+               ]
+            }]
+         };
+      
+         // Crear el canvas
+         const canvas = document.getElementById("pie-chart");
+         const ctx = canvas.getContext("2d");
+      
+         // Crear la gráfica
+         new Chart(ctx, {
+            type: "pie",
+            data: chartData,
+            options: {
+               tooltips: {
+                  callbacks: {
+                     label: function(tooltipItem, data) {
+                        let label = data.labels[tooltipItem.index];
+                        let count = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        return `${label}: ${count} (${((count / dataCalib.length) * 100).toFixed(2)}%)`;
+                     }
+                  }
+               }
+            }
+         });
+         //alert(top3);
+      }
+
       window.addEventListener("load", function () {
          GazeCloudAPI.OnCalibrationComplete = function () {
             ShowHeatMap(); resetTimer(); startTimer(); console.log('Calibracion Completa');
+            calibrationComplete = true;
             if (optionVal == "video") {
                playPauseVideo();
                // Variables
@@ -365,7 +451,7 @@
          userTimer.style.display = "block";
          heatmapInfo.style.display = "block";
          window.print();
-         location.reload();
+         //location.reload();
       }
      
    </script>
@@ -471,7 +557,7 @@
          <br>
          <br>
          <div >
-            <img class="mapcolor" src="/colores.png" id="heatmap-info" style="display: none;">
+            <img class="mapcolor" src="colores.png" id="heatmap-info" style="display: none;">
          </div>
          <div id="gaze"
             style='position: absolute;display:none;width: 100px;height: 100px;border-radius: 50%;border: solid 2px  rgba(255, 255,255, .2);	box-shadow: 0 0 100px 3px rgba(125, 125,125, .5);	pointer-events: none;	z-index: 999999'>
@@ -481,13 +567,14 @@
             <button id="init-test-button" class="button type4" type="button" onclick="setButtonsON();GazeCloudAPI.StartEyeTracking();">Iniciar
                Prueba</button>
 
-            <button  class="button type4" type="button" id="pruebaImagen" onclick="GazeCloudAPI.StopEyeTracking();stopTimer();printPDF();"
+            <button  class="button type4" type="button" id="pruebaImagen" onclick="GazeCloudAPI.StopEyeTracking();stopTimer();setCalibIncomplete();tabulateRecords();drawMap();printPDF();"
                disabled>Detener Prueba de Imagen</button>
                
             <button class="button type4" type="button" id="pruebaVideo"
                onclick="GazeCloudAPI.StopEyeTracking();stopTimer();pauseVideo();" disabled>Detener Prueba de
                Video</button>
          </div>
+         <canvas id="pie-chart"></canvas>
       </div>
       
 </body>
